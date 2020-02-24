@@ -7,19 +7,21 @@ const router = new Router();
 
 router.post("/signup", async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { userName, email, password } = req.body;
 
-    if (email && password) {
+    if (userName && email && password) {
       const hashedPassword = bcrypt.hashSync(password, 10);
       await User.create({ ...req.body, password: hashedPassword });
       return res.status(201).send("User created successfully");
     }
 
-    return res.status(400).send("Please provide an email and password");
+    return res
+      .status(400)
+      .send("Please provide all information needed to create an account");
   } catch (err) {
-    if (err.name === "SequelizeUniqueConstraintError") {
-      return res.status(400).send("This email address already has an account.");
-    }
+    // if (err.name === "SequelizeUniqueConstraintError") {
+    //   return res.status(400).send("This email address already has an account.");
+    // }
     return next(err);
   }
 });

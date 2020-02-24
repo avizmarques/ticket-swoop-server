@@ -1,7 +1,8 @@
 const { Router } = require("express");
 const Event = require("./model");
-const User = require("../user/model");
 const auth = require("../auth/middleware");
+const Ticket = require("../ticket/model");
+const User = require("../user/model");
 
 const router = new Router();
 
@@ -41,7 +42,19 @@ router.post("/event", auth, async (req, res, next) => {
 
 router.get("/event/:id", async (req, res, next) => {
   try {
-    const event = await Event.findByPk(req.params.id);
+    const event = await Event.findByPk(req.params.id, {
+      include: [
+        {
+          model: Ticket,
+          include: [
+            {
+              model: User,
+              attributes: ["userName"]
+            }
+          ]
+        }
+      ]
+    });
 
     if (event) {
       return res.json(event);

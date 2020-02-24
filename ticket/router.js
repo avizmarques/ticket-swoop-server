@@ -4,16 +4,18 @@ const auth = require("../auth/middleware");
 
 const router = new Router();
 
-router.get("/event/:eventId/ticket", async (req, res, next) => {
-  try {
-    const tickets = await Ticket.findAll({
-      where: { eventId: req.params.eventId }
-    });
-    return res.json(tickets);
-  } catch (err) {
-    next(err);
-  }
-});
+// MIGHT NOT NEED THIS > USE EVENT ROUTER FOR SINGLE EVENT AND INCLUDE TICKETS
+
+// router.get("/event/:eventId/ticket", async (req, res, next) => {
+//   try {
+//     const tickets = await Ticket.findAll({
+//       where: { eventId: req.params.eventId }
+//     });
+//     return res.json(tickets);
+//   } catch (err) {
+//     next(err);
+//   }
+// });
 
 router.post("/event/:eventId/ticket", auth, async (req, res, next) => {
   try {
