@@ -15,4 +15,7 @@ app.use(userRouter);
 const eventRouter = require("./event/router");
 app.use(eventRouter);
 
+const ticketRouter = require("./ticket/router");
+app.use(ticketRouter);
+
 app.listen(port, () => `Listening on port ${port}`);
