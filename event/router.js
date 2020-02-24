@@ -39,4 +39,18 @@ router.post("/event", auth, async (req, res, next) => {
   }
 });
 
+router.get("/event/:id", async (req, res, next) => {
+  try {
+    const event = await Event.findByPk(req.params.id);
+
+    if (event) {
+      return res.json(event);
+    } else {
+      return res.status(404).send("Event not found");
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
