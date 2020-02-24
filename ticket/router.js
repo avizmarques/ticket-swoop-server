@@ -1,6 +1,4 @@
 const { Router } = require("express");
-// const User = require("../user/model");
-// const Event = require("../event/model");
 const Ticket = require("./model");
 const auth = require("../auth/middleware");
 
@@ -45,16 +43,28 @@ router.get("/ticket/:id", async (req, res, next) => {
 router.put("/ticket/:id", auth, async (req, res, next) => {
   try {
     const { imageUrl, price, description } = req.body;
+    const ticket = await Ticket.findByPk(req.params.id);
 
-    const updatedTicket = await Ticket.update(
-      { imageUrl, price, description },
-      {
-        where: { id: req.params.id },
-        returning: true
-      }
-    );
+    if (!ticket) {
+      return res
+        .status(404)
+        .send("The ticket you're trying to change doesn't exist");
+    }
 
-    return res.json(updatedTicket);
+    if (ticket.userId === req.user.dataValues.id) {
+      const updatedTicket = await Ticket.update(
+        { imageUrl, price, description },
+        {
+          where: { id: req.params.id },
+          returning: true
+        }
+      );
+      return res.json(updatedTicket);
+    }
+
+    return res
+      .status(400)
+      .send("You don't have permission to change this ticket");
   } catch (err) {
     next(err);
   }
