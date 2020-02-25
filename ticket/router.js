@@ -60,7 +60,13 @@ router.get("/ticket/:id", async (req, res, next) => {
           attributes: ["userName"]
         },
         {
-          model: Comment
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["userName"]
+            }
+          ]
         }
       ]
     });

@@ -49,7 +49,13 @@ router.get("/event/:id", async (req, res, next) => {
     if (event) {
       const tickets = await Ticket.findAll({
         where: { eventId: req.params.id },
-        include: [Comment]
+        include: [
+          Comment,
+          {
+            model: User,
+            attributes: ["userName"]
+          }
+        ]
       });
 
       const ticketsWithRisk =
@@ -57,7 +63,7 @@ router.get("/event/:id", async (req, res, next) => {
         (await Promise.all(
           tickets.map(async ticket => {
             let risk = await riskCalculator(ticket);
-            return { dataValues: { ...ticket.dataValues, risk } };
+            return { ...ticket.dataValues, risk };
           })
         ));
 
