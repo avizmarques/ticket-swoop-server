@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const Comment = require("./model");
+const User = require("../user/model");
 const auth = require("../auth/middleware");
 
 const router = new Router();
@@ -27,7 +28,8 @@ router.post("/ticket/:ticketId/comment", auth, async (req, res, next) => {
       userId: req.user.dataValues.id,
       ticketId: req.params.ticketId
     });
-    res.json(comment);
+
+    res.json({ comment, userName: req.user.dataValues.userName });
   } catch (err) {
     next(err);
   }
