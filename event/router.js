@@ -3,6 +3,8 @@ const Event = require("./model");
 const auth = require("../auth/middleware");
 const Ticket = require("../ticket/model");
 const User = require("../user/model");
+const Comment = require("../comment/model");
+const riskCalculator = require("../ticket/riskCalculator");
 
 const router = new Router();
 
@@ -42,22 +44,24 @@ router.post("/event", auth, async (req, res, next) => {
 
 router.get("/event/:id", async (req, res, next) => {
   try {
-    const event = await Event.findByPk(req.params.id, {
-      include: [
-        {
-          model: Ticket,
-          include: [
-            {
-              model: User,
-              attributes: ["userName"]
-            }
-          ]
-        }
-      ]
-    });
+    const event = await Event.findByPk(req.params.id);
 
     if (event) {
-      return res.json(event);
+      const tickets = await Ticket.findAll({
+        where: { eventId: req.params.id },
+        include: [Comment]
+      });
+
+      const ticketsWithRisk =
+        tickets.length &&
+        (await Promise.all(
+          tickets.map(async ticket => {
+            let risk = await riskCalculator(ticket);
+            return { dataValues: { ...ticket.dataValues, risk } };
+          })
+        ));
+
+      return res.json({ event, tickets: ticketsWithRisk });
     } else {
       return res.status(404).send("Event not found");
     }

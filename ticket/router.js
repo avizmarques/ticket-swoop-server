@@ -1,17 +1,38 @@
 const { Router } = require("express");
 const Ticket = require("./model");
 const auth = require("../auth/middleware");
+const User = require("../user/model");
+const Comment = require("../comment/model");
+const Event = require("../event/model");
+const riskCalculator = require("./riskCalculator");
 
 const router = new Router();
 
 // MIGHT NOT NEED THIS > USE EVENT ROUTER FOR SINGLE EVENT AND INCLUDE TICKETS
-
 // router.get("/event/:eventId/ticket", async (req, res, next) => {
 //   try {
-//     const tickets = await Ticket.findAll({
-//       where: { eventId: req.params.eventId }
-//     });
-//     return res.json(tickets);
+//     const event = await Event.findByPk(req.params.eventId);
+
+//     if (event) {
+//       const tickets = await Ticket.findAll({
+//         where: { eventId: req.params.eventId },
+//         include: [Comment]
+//       });
+
+//       if (tickets.length) {
+//         const ticketsWithRisk = await Promise.all(
+//           tickets.map(async ticket => {
+//             let risk = await riskCalculator(ticket);
+//             return { dataValues: { ...ticket.dataValues, risk } };
+//           })
+//         );
+
+//         return res.json(ticketsWithRisk);
+//       }
+
+//       return res.status(404).send("No tickets found for this event");
+//     }
+//     return res.status(404).send("Event not found");
 //   } catch (err) {
 //     next(err);
 //   }
@@ -32,8 +53,20 @@ router.post("/event/:eventId/ticket", auth, async (req, res, next) => {
 
 router.get("/ticket/:id", async (req, res, next) => {
   try {
-    const ticket = await Ticket.findByPk(req.params.id);
+    const ticket = await Ticket.findByPk(req.params.id, {
+      include: [
+        {
+          model: User,
+          attributes: ["userName"]
+        },
+        {
+          model: Comment
+        }
+      ]
+    });
+
     if (ticket) {
+      ticket.dataValues.risk = await riskCalculator(ticket);
       return res.json(ticket);
     }
     return res.status(404).send("Ticket not found");
