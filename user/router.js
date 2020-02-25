@@ -28,15 +28,17 @@ router.post("/signup", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ where: { email: email } });
+    const { userName, password } = req.body;
+    const user = await User.findOne({ where: { userName: userName } });
 
     if (user) {
       const passwordIsValid = bcrypt.compareSync(password, user.password);
 
       if (passwordIsValid) {
         const token = toJWT({ id: user.id });
-        return res.status(200).json({ token: token });
+        return res
+          .status(200)
+          .json({ userName: user.dataValues.userName, token: token });
       }
     }
 
