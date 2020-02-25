@@ -23,7 +23,7 @@ const router = new Router();
 router.post("/ticket/:ticketId/comment", auth, async (req, res, next) => {
   try {
     const comment = await Comment.create({
-      ...req.body,
+      text: req.body.text,
       userId: req.user.dataValues.id,
       ticketId: req.params.ticketId
     });

@@ -8,7 +8,6 @@ const router = new Router();
 router.post("/signup", async (req, res, next) => {
   try {
     const { userName, email, password } = req.body;
-
     if (userName && email && password) {
       const hashedPassword = bcrypt.hashSync(password, 10);
       await User.create({ ...req.body, password: hashedPassword });
