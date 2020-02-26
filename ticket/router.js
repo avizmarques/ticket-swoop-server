@@ -45,7 +45,7 @@ router.post("/event/:eventId/ticket", auth, async (req, res, next) => {
       userId: req.user.dataValues.id,
       eventId: req.params.eventId
     });
-    res.json(ticket);
+    res.json({ ticket, userName: req.user.dataValues.userName });
   } catch (err) {
     next(err);
   }
