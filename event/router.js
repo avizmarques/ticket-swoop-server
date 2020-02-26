@@ -5,13 +5,19 @@ const Ticket = require("../ticket/model");
 const User = require("../user/model");
 const Comment = require("../comment/model");
 const riskCalculator = require("../ticket/riskCalculator");
+const { Op } = require("sequelize");
 
 const router = new Router();
 
 router.get("/event", async (req, res, next) => {
   try {
-    const events = await Event.findAll();
-
+    const events = await Event.findAll({
+      where: {
+        endDate: {
+          [Op.gte]: new Date()
+        }
+      }
+    });
     if (events.length) {
       return res.json(events);
     }
