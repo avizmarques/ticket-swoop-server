@@ -29,8 +29,6 @@ router.post("/event/:eventId/ticket", auth, async (req, res, next) => {
           return { ...ticket.dataValues, risk };
         })
       ));
-
-    console.log(ticketsWithRisk);
     res.json(ticketsWithRisk);
   } catch (err) {
     next(err);
