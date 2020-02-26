@@ -11,14 +11,18 @@ const router = new Router();
 
 router.get("/event", async (req, res, next) => {
   try {
-    const events = await Event.findAll({
+    const offset = (req.query.page - 1) * 9;
+    const events = await Event.findAndCountAll({
       where: {
         endDate: {
           [Op.gte]: new Date()
         }
-      }
+      },
+      limit: 9,
+      offset
     });
-    if (events.length) {
+
+    if (events.rows.length) {
       return res.json(events);
     }
 
