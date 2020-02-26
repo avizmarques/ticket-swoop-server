@@ -8,44 +8,30 @@ const riskCalculator = require("./riskCalculator");
 
 const router = new Router();
 
-// MIGHT NOT NEED THIS > USE EVENT ROUTER FOR SINGLE EVENT AND INCLUDE TICKETS
-// router.get("/event/:eventId/ticket", async (req, res, next) => {
-//   try {
-//     const event = await Event.findByPk(req.params.eventId);
-
-//     if (event) {
-//       const tickets = await Ticket.findAll({
-//         where: { eventId: req.params.eventId },
-//         include: [Comment]
-//       });
-
-//       if (tickets.length) {
-//         const ticketsWithRisk = await Promise.all(
-//           tickets.map(async ticket => {
-//             let risk = await riskCalculator(ticket);
-//             return { dataValues: { ...ticket.dataValues, risk } };
-//           })
-//         );
-
-//         return res.json(ticketsWithRisk);
-//       }
-
-//       return res.status(404).send("No tickets found for this event");
-//     }
-//     return res.status(404).send("Event not found");
-//   } catch (err) {
-//     next(err);
-//   }
-// });
-
 router.post("/event/:eventId/ticket", auth, async (req, res, next) => {
   try {
-    const ticket = await Ticket.create({
+    await Ticket.create({
       ...req.body,
       userId: req.user.dataValues.id,
       eventId: req.params.eventId
     });
-    res.json({ ticket, userName: req.user.dataValues.userName });
+
+    const tickets = await Ticket.findAll({
+      where: { eventId: req.params.eventId },
+      include: [Comment, { model: User, attributes: ["userName"] }]
+    });
+
+    const ticketsWithRisk =
+      tickets.length &&
+      (await Promise.all(
+        tickets.map(async ticket => {
+          let risk = await riskCalculator(ticket);
+          return { ...ticket.dataValues, risk };
+        })
+      ));
+
+    console.log(ticketsWithRisk);
+    res.json(ticketsWithRisk);
   } catch (err) {
     next(err);
   }
