@@ -13,6 +13,7 @@ const riskCalculator = async ticket => {
     if (numberOfTicketsByUser < 2) {
       risk = risk + 10;
     }
+    console.log("only ticket", risk);
 
     // PRICE DIFERENT FROM AVERAGE ?
 
@@ -27,16 +28,22 @@ const riskCalculator = async ticket => {
         return accum + ticket.dataValues.price;
       }, 0) / ticketsToEvent.length;
 
-    if (ticketPrice < avgTicketPrice) {
-      risk = risk + (avgTicketPrice - ticketPrice);
-    } else if (ticketPrice > avgTicketPrice) {
-      const differenceInPrice = ticketPrice - avgTicketPrice;
-      if (differenceInPrice >= 10) {
+    const differencePercent = 100 - (ticketPrice * 100) / avgTicketPrice;
+
+    console.log("difference percent", differencePercent);
+
+    if (differencePercent <= 100) {
+      risk = risk + differencePercent;
+    } else if (differencePercent > 100) {
+      const extraPercent = differencePercent - 100;
+      if (extraPercent >= 10) {
         risk = risk - 10;
       } else {
-        risk = risk - differenceInPrice;
+        risk = risk - differencePercent;
       }
     }
+
+    console.log("after average price", risk);
 
     // CREATED DURING BUSINESS HOURS ?
     const ticketCreatedTime = ticket.dataValues.createdAt;
@@ -48,6 +55,8 @@ const riskCalculator = async ticket => {
       risk = risk + 10;
     }
 
+    console.log("business hours", risk);
+
     // MORE THAN 3 COMMENTS ?
     const numOfComments = ticket.dataValues.comments.length;
 
@@ -55,8 +64,10 @@ const riskCalculator = async ticket => {
       risk = risk + 5;
     }
 
+    console.log("num of comments", risk);
+
     // ADJUST FOR MIN AND MAX AND RETURN
-    return risk < 5 ? 5 : risk > 95 ? 95 : risk;
+    return risk < 5 ? 5 : risk > 95 ? 95 : Math.trunc(risk);
   } catch (err) {
     console.error(err);
   }

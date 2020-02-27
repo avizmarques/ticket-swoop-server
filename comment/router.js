@@ -5,22 +5,6 @@ const auth = require("../auth/middleware");
 
 const router = new Router();
 
-// DONT THINK I WILL NEED THIS, I CAN GET IT WITH TICKET
-
-// router.get("/ticket/:ticketId/comment", async (req, res, next) => {
-//   try {
-//     const comments = await Comment.findAll({
-//       where: { ticketId: req.params.ticketId }
-//     });
-//     if (!comments.length) {
-//       return res.status(404).send("No comments found for this ticket");
-//     }
-//     return res.json(comments);
-//   } catch (err) {
-//     next(err);
-//   }
-// });
-
 router.post("/ticket/:ticketId/comment", auth, async (req, res, next) => {
   try {
     const comment = await Comment.create({
@@ -29,7 +13,11 @@ router.post("/ticket/:ticketId/comment", auth, async (req, res, next) => {
       ticketId: req.params.ticketId
     });
 
-    res.json({ comment, userName: req.user.dataValues.userName });
+    if (comment) {
+      return res.json({ comment, userName: req.user.dataValues.userName });
+    }
+
+    return res.status(400).send("Error creating the comment");
   } catch (err) {
     next(err);
   }
