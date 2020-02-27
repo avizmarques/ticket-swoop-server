@@ -51,6 +51,10 @@ router.get("/ticket/:id", async (req, res, next) => {
               attributes: ["userName"]
             }
           ]
+        },
+        {
+          model: Event,
+          attributes: ["name"]
         }
       ]
     });
