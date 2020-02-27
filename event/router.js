@@ -19,7 +19,8 @@ router.get("/event", async (req, res, next) => {
         }
       },
       limit: 9,
-      offset
+      offset,
+      order: [["createdAt", "DESC"]]
     });
 
     if (events.rows.length) {
