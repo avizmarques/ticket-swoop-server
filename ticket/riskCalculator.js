@@ -32,15 +32,12 @@ const riskCalculator = async ticket => {
 
     console.log("difference percent", differencePercent);
 
-    if (differencePercent <= 100) {
+    if (differencePercent <= -10) {
+      risk = risk - 10;
+    } else if (differencePercent < 0) {
       risk = risk + differencePercent;
-    } else if (differencePercent > 100) {
-      const extraPercent = differencePercent - 100;
-      if (extraPercent >= 10) {
-        risk = risk - 10;
-      } else {
-        risk = risk - differencePercent;
-      }
+    } else {
+      risk = risk + differencePercent;
     }
 
     console.log("after average price", risk);
