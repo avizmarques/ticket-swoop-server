@@ -19,7 +19,8 @@ router.get("/event", async (req, res, next) => {
         }
       },
       limit: 9,
-      offset
+      offset,
+      order: [["createdAt", "DESC"]]
     });
 
     if (events.rows.length) {
@@ -41,12 +42,28 @@ router.post("/event", auth, async (req, res, next) => {
         .send("Please provide all information needed to create an event.");
     }
 
-    const event = await Event.create({
+    await Event.create({
       ...req.body,
       userId: req.user.dataValues.id
     });
 
-    return res.json(event);
+    const offset = (req.query.page - 1) * 9;
+    const events = await Event.findAndCountAll({
+      where: {
+        endDate: {
+          [Op.gte]: new Date()
+        }
+      },
+      limit: 9,
+      offset,
+      order: [["createdAt", "DESC"]]
+    });
+
+    if (events.rows.length) {
+      return res.json(events);
+    }
+
+    return res.status(404).send("No events found");
   } catch (err) {
     next(err);
   }
