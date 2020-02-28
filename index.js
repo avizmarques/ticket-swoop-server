@@ -12,4 +12,13 @@ app.use(jsonMiddleware);
 const userRouter = require("./user/router");
 app.use(userRouter);
 
+const eventRouter = require("./event/router");
+app.use(eventRouter);
+
+const ticketRouter = require("./ticket/router");
+app.use(ticketRouter);
+
+const commentRouter = require("./comment/router");
+app.use(commentRouter);
+
 app.listen(port, () => `Listening on port ${port}`);

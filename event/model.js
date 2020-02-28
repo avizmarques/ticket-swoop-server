@@ -27,6 +27,6 @@ const Event = db.define("event", {
 });
 
 Event.belongsTo(User);
-User.hasMany(Post);
+User.hasMany(Event);
 
-module.exports = Post;
+module.exports = Event;
